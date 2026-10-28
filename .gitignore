@@ -1,0 +1,20 @@
+# Ambientes virtuais
+venv/
+.venv/
+env/
+
+# Arquivos temporários do Python
+__pycache__/
+*.py[cod]
+
+# Configurações locais
+.env
+.env.*
+!.env.example
+
+# Sessões do Telegram
+*.session
+*.session-journal
+
+# Dados locais
+keywords.json

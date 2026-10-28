@@ -1,0 +1,4 @@
+Telethon==1.44.0
+aiohttp
+motor
+python-dotenv
