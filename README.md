@@ -10,6 +10,7 @@ A demonstração apresenta o cadastro de filtros, a identificação de ofertas, 
 
 <p align="center">
   <img width="720" height="790" alt="demo" src="https://github.com/user-attachments/assets/9362679f-1eed-4302-bd21-fae397dd2ba0" />
+  
   ###### Os produtos e preços utilizados na demonstração são fictícios e não representam anúncios ou recomendações de compra.
 </p>
 
