@@ -304,8 +304,6 @@ Faça primeiro o teste local. Depois, utilize uma cópia do repositório na sua 
 
 A imagem de referência desta etapa deve mostrar o cartão **Web Services**. O botão **New +** abre a seleção de serviços; ele não é a opção final a escolher.
 
-<!-- PRINT RENDER 01: inserir aqui a captura de Create a new Service com uma seta no cartão Web Services. Não inserir uma seta apenas em New + se o seletor já estiver aberto. -->
-
 ### 2. Preencher a configuração
 
 | Campo | Valor |
@@ -319,8 +317,6 @@ A imagem de referência desta etapa deve mostrar o cartão **Web Services**. O b
 | Start Command | `python bot.py` |
 | Instance Type | Escolha após conferir preço e limitações do plano. |
 | Health Check Path | `/health`, nas opções avançadas ou nas configurações do serviço. |
-
-<!-- PRINT RENDER 02: campos Build Command e Start Command preenchidos. -->
 
 ### 3. Adicionar as variáveis de ambiente
 
@@ -342,7 +338,6 @@ Os valores são os mesmos do seu teste local. Não cole o nome da variável junt
 
 O código utiliza a variável `PORT` fornecida pelo ambiente e usa `10000` como alternativa. Não é necessário duplicar uma variável que a plataforma já fornece.
 
-<!-- PRINT RENDER 03: lista dos nomes das variáveis com TODOS os valores ocultos. -->
 
 ### 4. Implantar e conferir
 
@@ -353,7 +348,6 @@ O código utiliza a variável `PORT` fornecida pelo ambiente e usa `10000` como 
 5. No Telegram, envie `/status` pela conta autorizada e confira as conexões e o estado do monitor.
 6. Cadastre um filtro de demonstração e publique uma oferta fictícia em um grupo ao qual a conta leitora tenha acesso.
 
-<!-- PRINT RENDER 04: deploy concluído e log Monitor conectado, sem dados pessoais ou credenciais. -->
 
 Uma resposta HTTP não comprova a saúde do Telegram ou do MongoDB; confira também `/status`.
 
@@ -372,8 +366,6 @@ Este tutorial considera o **UptimeRobot** ([uptimerobot.com](https://uptimerobot
 
 Se o serviço gratuito estava dormindo, a primeira solicitação pode demorar enquanto o Render o inicia. Aguarde e atualize a página uma vez.
 
-<!-- PRINT UPTIMEROBOT 01: página do serviço no Render com a URL pública destacada. Não mostrar dados de ambiente, valores de variáveis ou credenciais. -->
-
 #### 2. Criar um monitor HTTP no UptimeRobot
 
 1. Acesse [uptimerobot.com](https://uptimerobot.com/) e entre ou crie uma conta.
@@ -385,8 +377,6 @@ Se o serviço gratuito estava dormindo, a primeira solicitação pode demorar en
 7. Revise o intervalo de verificação e as demais opções. No plano gratuito atual, as verificações são feitas a cada 5 minutos; a disponibilidade de opções pode variar conforme o plano.
 8. Clique em **Create monitor**.
 
-<!-- PRINT UPTIMEROBOT 02: formulário Add New Monitor com HTTP(s) selecionado e nome/URL fictícios; esconder e-mail e contatos pessoais. -->
-
 #### 3. Confirmar que o monitor está funcionando
 
 1. Volte ao **Dashboard** do UptimeRobot.
@@ -395,8 +385,6 @@ Se o serviço gratuito estava dormindo, a primeira solicitação pode demorar en
 4. Se aparecer **Down**, abra o monitor para ver o incidente e teste novamente a URL `/health` no navegador. Confira também **Render → seu serviço → Logs**.
 
 O endpoint `/health` verifica se o processo HTTP do bot está respondendo. Para confirmar as conexões com Telegram e MongoDB, consulte também o comando `/status` no Telegram.
-
-<!-- PRINT UPTIMEROBOT 03: Dashboard mostrando o monitor de exemplo com status Up. Oculte e-mails, outros monitores e identificadores privados. -->
 
 #### O que isso faz no plano gratuito do Render
 
@@ -438,10 +426,15 @@ requirements.txt   Dependências Python
 LICENSE            Licença do projeto
 ```
 
-## Tecnologias
+## Tecnologias Usadas
 
-Python · Telethon · Telegram Bot API · MongoDB · Motor · aiohttp · python-dotenv
-
+- Python
+- Telethon
+- Telegram Bot API
+- MongoDB
+- Google Antigravity
+- GPT-6.1 Sol
+  
 ## Autor
 
 Victor Riki (https://github.com/victor-rk/)
