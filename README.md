@@ -52,7 +52,9 @@ Meta: R$ 5.000,00
 
 O alerta também inclui o texto original e o nome da origem. Os termos são comparados sem diferenciar maiúsculas de minúsculas; todas as palavras do filtro precisam aparecer na mensagem, mas não necessariamente juntas.
 
-## Instalação local
+---
+
+## Instalação e configuração
 
 ### 1. Prepare os requisitos
 
@@ -100,7 +102,7 @@ python -m pip install -r requirements.txt
 
 Nos sistemas em que o executável se chama `python3`, substitua `python` por `python3`.
 
-### 3. Onde obter cada credencial
+### 3. Obtenha as credenciais
 
 #### Criar o bot e obter o BOT_TOKEN
 
@@ -149,14 +151,13 @@ Use somente o número, sem aspas, parênteses ou `Long`. Se `result` estiver vaz
 1. Acesse [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register), crie sua conta e um projeto.
 2. Crie um cluster/deployment escolhendo região e modalidade adequadas ao seu uso. Confira os custos antes de confirmar.
 3. Em **Database Access / Database Users**, crie um usuário de banco com senha própria e permissão de leitura e escrita no banco `telegram_bot`. Esse usuário não é o login da sua conta Atlas.
-4. Em **Network Access / IP Access List**, permita o IP do computador que executará o teste local.
+4. Em **Network Access / IP Access List**, configure o acesso de rede para permitir que o serviço no Render alcance o banco. Consulte os endereços de saída do serviço no Render e adicione os intervalos correspondentes.
 5. Abra o cluster e clique em **Connect → Drivers**. Escolha **Python** e copie a connection string.
-6. Na URL copiada, substitua `<username>` pelo usuário criado em Database Access e `<password>` pela senha definida para ele. Depois, salve a URL completa na variável `MONGO_URI` do arquivo `.env`. Se a senha tiver caracteres especiais, codifique-os para URL.
-7. Salve a URI completa em `MONGO_URI`.
+6. Na URL copiada, substitua `<username>` pelo usuário criado em Database Access e `<password>` pela senha definida para ele. Guarde a URL completa para utilizar como `MONGO_URI`. Se a senha tiver caracteres especiais, codifique-os para URL.
 
 A aplicação cria a configuração na coleção `telegram_bot.config` ao iniciar; não é necessário inserir um documento manualmente.
 
-Para hospedar no Render, a lista de acesso do Atlas também precisa permitir os endereços de saída do serviço. Consulte os dados de rede do serviço no Render e adicione os intervalos correspondentes. Não libere acesso de qualquer IP apenas para contornar uma falha de conexão.
+Não libere acesso de qualquer IP apenas para contornar uma falha de conexão.
 
 <!-- PRINT: tela Connect → Drivers com o campo da URI totalmente oculto. Não exiba usuário, senha ou connection string real. -->
 
@@ -164,7 +165,9 @@ Os nomes dos menus podem variar. Consulte o [guia oficial de conexão do Atlas](
 
 ### 4. Gere a sessão da conta leitora
 
-Execute localmente:
+A sessão da conta Telegram deve ser gerada localmente, antes da implantação no Render.
+
+No terminal, dentro da pasta do projeto e com o ambiente virtual ativado, execute:
 
 ```bash
 python gerar_sessao.py
@@ -174,9 +177,9 @@ Informe o API ID, o API Hash e os dados solicitados pelo Telegram para autentica
 
 **A sessão permite acesso à conta autenticada.** Não a envie a terceiros, não a mostre em gravações e não a publique no repositório.
 
-### 5. Configure o ambiente
+### 5. Configure as variáveis de ambiente
 
-Crie uma cópia de `.env.example` chamada `.env` na raiz do projeto e preencha:
+Crie uma cópia de `.env.example` chamada `.env` na raiz do projeto e preencha as variáveis:
 
 | Variável | Conteúdo |
 |---|---|
@@ -189,19 +192,120 @@ Crie uma cópia de `.env.example` chamada `.env` na raiz do projeto e preencha:
 | `OWNER_ID` | ID numérico da conta autorizada a enviar comandos. |
 | `PORT` | Porta HTTP; o padrão é `10000`. |
 
-Para uso individual, use sua própria conta em `OWNER_ID` e seu chat privado com o bot como destino em `CHAT_ID`. Inicie a conversa com o bot antes de executar a aplicação.
+Para uso individual, use sua própria conta em `OWNER_ID` e seu chat privado com o bot como destino em `CHAT_ID`. Inicie a conversa com o bot antes de implantar a aplicação.
 
 O banco utilizado pelo código é `telegram_bot`, com a coleção `config`. Alterar apenas o nome do banco no caminho da URI não muda essa seleção definida no código.
 
-### 6. Inicie a aplicação
+**Importante:** o arquivo `.env` é utilizado para organizar suas credenciais localmente. Na hospedagem, os valores também deverão ser cadastrados diretamente nas variáveis de ambiente do Render. Nunca envie o arquivo `.env` para o GitHub.
 
-```bash
-python bot.py
+---
+
+## Hospedagem no Render
+
+Com as credenciais preparadas e a sessão gerada, você já pode implantar o projeto. O `bot.py` será iniciado pelo próprio Render; não é necessário executá-lo localmente.
+
+### 1. Criar um Web Service
+
+1. Acesse [dashboard.render.com](https://dashboard.render.com/) e entre na sua conta.
+2. Clique em **New + → Web Service**. Se já estiver na tela **Create a new Service**, escolha diretamente o cartão **Web Services**.
+3. Conecte sua conta GitHub quando solicitado e autorize o acesso ao repositório desejado.
+4. Selecione sua cópia de `telegram-monitor-promocoes`.
+
+A imagem de referência desta etapa deve mostrar o cartão **Web Services**. O botão **New +** abre a seleção de serviços; ele não é a opção final a escolher.
+
+### 2. Preencher a configuração
+
+| Campo | Valor |
+|---|---|
+| Name | Um nome disponível, como `meu-monitor-promocoes`. |
+| Language / Runtime | Python 3. |
+| Branch | A branch que contém o código, normalmente `main`. |
+| Region | Uma região adequada ao seu uso. |
+| Root Directory | Deixe vazio se `bot.py` estiver na raiz. |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `python bot.py` |
+| Instance Type | Escolha após conferir preço e limitações do plano. |
+| Health Check Path | `/health`, nas opções avançadas ou nas configurações do serviço. |
+
+### 3. Adicionar as variáveis de ambiente
+
+No formulário de criação, procure **Environment Variables**. Se o serviço já existir, abra **Environment → Edit → Add Environment Variable**.
+
+Cadastre separadamente as seguintes chaves e seus respectivos valores:
+
+```text
+API_ID
+API_HASH
+BOT_TOKEN
+CHAT_ID
+SESSION_STRING
+MONGO_URI
+OWNER_ID
 ```
 
-Com o processo em execução, envie `/status` na conversa privada com o bot, a partir da conta definida em `OWNER_ID`.
+Os valores são os mesmos que você preparou na configuração local. Não cole o nome da variável junto com o valor. Não envie seu arquivo `.env` para o GitHub.
 
-As respostas são enviadas ao `CHAT_ID` configurado. A aplicação precisa permanecer em execução para processar mensagens e comandos.
+O código utiliza a variável `PORT` fornecida pelo ambiente e usa `10000` como alternativa. Não é necessário duplicar uma variável que a plataforma já fornece.
+
+### 4. Implantar e conferir
+
+1. Confira se todas as variáveis de ambiente foram cadastradas corretamente.
+2. Conclua a criação em **Deploy Web Service / Create Web Service**. Ao alterar um serviço existente, escolha a opção de salvar com implantação.
+3. Acompanhe **Logs**: a instalação precisa terminar e a aplicação deve registrar `Monitor conectado`.
+4. Abra a URL pública do serviço acrescentando `/health`. A resposta esperada é `Servidor ativo`.
+5. No Telegram, envie `/status` pela conta autorizada e confira as conexões e o estado do monitor.
+6. Cadastre um filtro de demonstração e publique uma oferta fictícia em um grupo ao qual a conta leitora tenha acesso.
+
+Uma resposta HTTP não comprova a saúde do Telegram ou do MongoDB; confira também `/status`.
+
+**Não é necessário manter o terminal local executando `bot.py`.** Depois da implantação, o Render será responsável por iniciar e manter o processo de acordo com as condições do serviço contratado.
+
+### Configurar o UptimeRobot para monitorar o Render
+
+Este tutorial considera o **UptimeRobot** ([uptimerobot.com](https://uptimerobot.com/)). O monitor HTTP verifica a URL pública do Render e pode manter um Web Service gratuito ativo ao enviar solicitações periódicas.
+
+#### 1. Copiar e testar a URL de saúde no Render
+
+1. Acesse [dashboard.render.com](https://dashboard.render.com/) e entre na sua conta.
+2. Na página **Projects**, abra o projeto que contém o bot.
+3. Em **Production**, clique no serviço Web Service do bot.
+4. Na página do serviço, copie a URL pública exibida no cabeçalho, por exemplo, `https://meu-monitor.onrender.com`.
+5. Acrescente `/health` ao final. A URL completa deve ficar parecida com `https://meu-monitor.onrender.com/health`.
+6. Cole essa URL em uma nova aba do navegador. A resposta esperada é `Servidor ativo`.
+
+Se o serviço gratuito estava dormindo, a primeira solicitação pode demorar enquanto o Render o inicia. Aguarde e atualize a página uma vez.
+
+#### 2. Criar um monitor HTTP no UptimeRobot
+
+1. Acesse [uptimerobot.com](https://uptimerobot.com/) e entre ou crie uma conta.
+2. No painel principal (**Dashboard**), clique em **+ Add New Monitor**.
+3. Em **Monitor Type**, selecione **HTTP(s)**.
+4. No campo **URL**, cole o endereço completo terminado em `/health`.
+5. Em **Friendly Name**, informe um nome fácil de reconhecer, por exemplo, `Telegram Promo Bot — Render`.
+6. Em **Alert Contacts**, selecione seu e-mail ou outro contato de notificação. Confira se o contato recebe alertas de indisponibilidade (**Down**) e de recuperação (**Up**).
+7. Revise o intervalo de verificação e as demais opções. No plano gratuito atual, as verificações são feitas a cada 5 minutos; a disponibilidade de opções pode variar conforme o plano.
+8. Clique em **Create monitor**.
+
+#### 3. Confirmar que o monitor está funcionando
+
+1. Volte ao **Dashboard** do UptimeRobot.
+2. Localize o monitor pelo nome que você escolheu.
+3. Confirme que o status aparece como **Up**.
+4. Se aparecer **Down**, abra o monitor para ver o incidente e teste novamente a URL `/health` no navegador. Confira também **Render → seu serviço → Logs**.
+
+O endpoint `/health` verifica se o processo HTTP do bot está respondendo. Para confirmar as conexões com Telegram e MongoDB, consulte também o comando `/status` no Telegram.
+
+#### O que isso faz no plano gratuito do Render
+
+O Render suspende um Web Service gratuito após 15 minutos sem tráfego de entrada. O UptimeRobot, no plano gratuito, verifica o endereço a cada 5 minutos; essas requisições HTTP ao endpoint `/health` podem impedir que o serviço fique inativo. Isso pode ajudar o bot a permanecer acordado, mas não garante disponibilidade: falhas, pausas, limites de uso e mudanças nos planos dos provedores ainda podem interromper o serviço.
+
+Um Web Service mantido ativo consome horas gratuitas do workspace. O Render oferece atualmente 750 horas de instância gratuita por workspace em cada mês; um serviço mantido ativo continuamente pode usar quase todas essas horas, deixando menos para outros serviços gratuitos do mesmo workspace. Confira os limites atuais antes de depender dessa configuração.
+
+Para disponibilidade contínua com garantias mais adequadas, avalie um plano pago do Render. O UptimeRobot é uma ferramenta de monitoramento HTTP; ele não corrige falhas da aplicação, não verifica diretamente se Telegram/MongoDB estão conectados e não substitui o comando `/status`.
+
+Consulte também os guias oficiais: [criar um monitor no UptimeRobot](https://help.uptimerobot.com/en/articles/11358364-how-to-create-your-first-monitor-on-uptimerobot-quick-setup-guide), [intervalo de verificação do UptimeRobot](https://help.uptimerobot.com/en/articles/11360876-what-is-a-monitoring-interval-in-uptimerobot) e [limites dos serviços gratuitos do Render](https://render.com/docs/free).
+
+---
 
 ## Utilização
 
@@ -299,108 +403,7 @@ Execute `/canais` antes de usar seus números; também é possível informar dir
 | `/status` | Consulta conexões e configurações do monitor. |
 | `/help` ou `/start` | Exibe a ajuda. |
 
-## Hospedagem no Render
-
-Faça primeiro o teste local. Depois, utilize uma cópia do repositório na sua conta GitHub e gere a sessão localmente antes da implantação.
-
-### 1. Criar um Web Service
-
-1. Acesse [dashboard.render.com](https://dashboard.render.com/) e entre na sua conta.
-2. Clique em **New + → Web Service**. Se já estiver na tela **Create a new Service**, escolha diretamente o cartão **Web Services**.
-3. Conecte sua conta GitHub quando solicitado e autorize o acesso ao repositório desejado.
-4. Selecione a sua cópia de `telegram-monitor-promocoes`.
-
-A imagem de referência desta etapa deve mostrar o cartão **Web Services**. O botão **New +** abre a seleção de serviços; ele não é a opção final a escolher.
-
-### 2. Preencher a configuração
-
-| Campo | Valor |
-|---|---|
-| Name | Um nome disponível, como `meu-monitor-promocoes`. |
-| Language / Runtime | Python 3. |
-| Branch | A branch que contém o código, normalmente `main`. |
-| Region | Uma região adequada ao seu uso. |
-| Root Directory | Deixe vazio se `bot.py` estiver na raiz. |
-| Build Command | `pip install -r requirements.txt` |
-| Start Command | `python bot.py` |
-| Instance Type | Escolha após conferir preço e limitações do plano. |
-| Health Check Path | `/health`, nas opções avançadas ou nas configurações do serviço. |
-
-### 3. Adicionar as variáveis de ambiente
-
-No formulário de criação, procure **Environment Variables**. Se o serviço já existir, abra **Environment → Edit → Add Environment Variable**.
-
-Cadastre separadamente as seguintes chaves e os seus valores:
-
-```text
-API_ID
-API_HASH
-BOT_TOKEN
-CHAT_ID
-SESSION_STRING
-MONGO_URI
-OWNER_ID
-```
-
-Os valores são os mesmos do seu teste local. Não cole o nome da variável junto com o valor. Não envie seu arquivo `.env` para o GitHub.
-
-O código utiliza a variável `PORT` fornecida pelo ambiente e usa `10000` como alternativa. Não é necessário duplicar uma variável que a plataforma já fornece.
-
-### 4. Implantar e conferir
-
-1. Pare a instância local com **Ctrl + C**, para não manter duas cópias em execução.
-2. Conclua a criação em **Deploy Web Service / Create Web Service**. Ao alterar um serviço existente, escolha a opção de salvar com implantação.
-3. Acompanhe **Logs**: a instalação precisa terminar e a aplicação deve registrar `Monitor conectado`.
-4. Abra a URL pública do serviço acrescentando `/health`. A resposta esperada é `Servidor ativo`.
-5. No Telegram, envie `/status` pela conta autorizada e confira as conexões e o estado do monitor.
-6. Cadastre um filtro de demonstração e publique uma oferta fictícia em um grupo ao qual a conta leitora tenha acesso.
-
-Uma resposta HTTP não comprova a saúde do Telegram ou do MongoDB; confira também `/status`.
-
-### Configurar o UptimeRobot para monitorar o Render
-
-Este tutorial considera o **UptimeRobot** ([uptimerobot.com](https://uptimerobot.com/)). O monitor HTTP verifica a URL pública do Render e pode manter um Web Service gratuito ativo ao enviar solicitações periódicas.
-
-#### 1. Copiar e testar a URL de saúde no Render
-
-1. Acesse [dashboard.render.com](https://dashboard.render.com/) e entre na sua conta.
-2. Na página **Projects**, abra o projeto que contém o bot.
-3. Em **Production**, clique no serviço Web Service do bot.
-4. Na página do serviço, copie a URL pública exibida no cabeçalho, por exemplo, `https://meu-monitor.onrender.com`.
-5. Acrescente `/health` ao final. A URL completa deve ficar parecida com `https://meu-monitor.onrender.com/health`.
-6. Cole essa URL em uma nova aba do navegador. A resposta esperada é `Servidor ativo`.
-
-Se o serviço gratuito estava dormindo, a primeira solicitação pode demorar enquanto o Render o inicia. Aguarde e atualize a página uma vez.
-
-#### 2. Criar um monitor HTTP no UptimeRobot
-
-1. Acesse [uptimerobot.com](https://uptimerobot.com/) e entre ou crie uma conta.
-2. No painel principal (**Dashboard**), clique em **+ Add New Monitor**.
-3. Em **Monitor Type**, selecione **HTTP(s)**.
-4. No campo **URL**, cole o endereço completo terminado em `/health`.
-5. Em **Friendly Name**, informe um nome fácil de reconhecer, por exemplo, `Telegram Promo Bot — Render`.
-6. Em **Alert Contacts**, selecione seu e-mail ou outro contato de notificação. Confira se o contato recebe alertas de indisponibilidade (**Down**) e de recuperação (**Up**).
-7. Revise o intervalo de verificação e as demais opções. No plano gratuito atual, as verificações são feitas a cada 5 minutos; a disponibilidade de opções pode variar conforme o plano.
-8. Clique em **Create monitor**.
-
-#### 3. Confirmar que o monitor está funcionando
-
-1. Volte ao **Dashboard** do UptimeRobot.
-2. Localize o monitor pelo nome que você escolheu.
-3. Confirme que o status aparece como **Up**.
-4. Se aparecer **Down**, abra o monitor para ver o incidente e teste novamente a URL `/health` no navegador. Confira também **Render → seu serviço → Logs**.
-
-O endpoint `/health` verifica se o processo HTTP do bot está respondendo. Para confirmar as conexões com Telegram e MongoDB, consulte também o comando `/status` no Telegram.
-
-#### O que isso faz no plano gratuito do Render
-
-O Render suspende um Web Service gratuito após 15 minutos sem tráfego de entrada. O UptimeRobot, no plano gratuito, verifica o endereço a cada 5 minutos; essas requisições HTTP ao endpoint `/health` podem impedir que o serviço fique inativo. Isso pode ajudar o bot a permanecer acordado, mas não garante disponibilidade: falhas, pausas, limites de uso e mudanças nos planos dos provedores ainda podem interromper o serviço.
-
-Um Web Service mantido ativo consome horas gratuitas do workspace. O Render oferece atualmente 750 horas de instância gratuita por workspace em cada mês; um serviço mantido ativo continuamente pode usar quase todas essas horas, deixando menos para outros serviços gratuitos do mesmo workspace. Confira os limites atuais antes de depender dessa configuração.
-
-Para disponibilidade contínua com garantias mais adequadas, avalie um plano pago do Render. O UptimeRobot é uma ferramenta de monitoramento HTTP; ele não corrige falhas da aplicação, não verifica diretamente se Telegram/MongoDB estão conectados e não substitui o comando `/status`.
-
-Consulte também os guias oficiais: [criar um monitor no UptimeRobot](https://help.uptimerobot.com/en/articles/11358364-how-to-create-your-first-monitor-on-uptimerobot-quick-setup-guide), [intervalo de verificação do UptimeRobot](https://help.uptimerobot.com/en/articles/11360876-what-is-a-monitoring-interval-in-uptimerobot) e [limites dos serviços gratuitos do Render](https://render.com/docs/free).
+---
 
 ## Segurança e limitações
 
