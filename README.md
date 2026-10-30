@@ -102,8 +102,8 @@ https://api.telegram.org/botSEU_BOT_TOKEN/getUpdates
 ```
 
 3. Na resposta, localize a mensagem que você acabou de enviar.
-4. Copie `message.from.id` para `OWNER_ID`.
-5. Copie `message.chat.id` para `CHAT_ID`. Em uma conversa privada comum com sua própria conta, esses dois valores coincidem.
+4. Copie `"message":{.."from":{"id":...}}` para `OWNER_ID`.
+5. Copie `"message":{.."chat":{"id":...}}` para `CHAT_ID`. Em uma conversa privada comum com sua própria conta, esses dois valores coincidem.
 
 Use somente o número, sem aspas, parênteses ou `Long`. Se `result` estiver vazio, envie uma nova mensagem ao bot e atualize a consulta. Um webhook previamente configurado nesse mesmo bot pode impedir a consulta; prefira um bot novo para este projeto.
 
