@@ -10,7 +10,7 @@ A demonstração apresenta o cadastro de filtros, a identificação de ofertas, 
 
 <p align="center">
   <img width="720" height="790" alt="demo" src="https://github.com/user-attachments/assets/9362679f-1eed-4302-bd21-fae397dd2ba0" />
-  
+
   ###### Os produtos e preços utilizados na demonstração são fictícios e não representam anúncios ou recomendações de compra.
 </p>
 
@@ -65,7 +65,42 @@ Você precisará de:
 - Uma instância MongoDB acessível pela aplicação.
 - O ID numérico da sua conta e o ID do chat que receberá os alertas.
 
-### Onde obter cada credencial
+### 2. Baixe o projeto e instale as dependências
+
+Clone o repositório e entre na pasta do projeto:
+
+```bash
+git clone https://github.com/victor-rk/telegram-monitor-promocoes.git
+cd telegram-monitor-promocoes
+```
+
+Crie um ambiente virtual:
+
+```bash
+python -m venv .venv
+```
+
+Ative o ambiente virtual no **Windows — PowerShell**:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Ou no **Linux/macOS**:
+
+```bash
+source .venv/bin/activate
+```
+
+Depois instale as dependências:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Nos sistemas em que o executável se chama `python3`, substitua `python` por `python3`.
+
+### 3. Onde obter cada credencial
 
 #### Criar o bot e obter o BOT_TOKEN
 
@@ -74,7 +109,7 @@ Você precisará de:
 3. Escolha o nome exibido, por exemplo, **Meu Monitor de Ofertas**.
 4. Escolha um username disponível terminado em `bot`, por exemplo, `meu_monitor_ofertas_bot`.
 5. O BotFather retornará um token. Guarde-o como `BOT_TOKEN`.
-6. Abra o link do bot ('  t.me/meu_monitor_ofertas_bot' por exemplo) criado e pressione **Iniciar / Start**.
+6. Abra o link do bot (por exemplo, `t.me/meu_monitor_ofertas_bot`) criado e pressione **Iniciar / Start**.
 
 Você não precisa adicionar esse bot aos canais de ofertas: quem lê as mensagens é a conta autenticada no Telethon.
 
@@ -116,7 +151,7 @@ Use somente o número, sem aspas, parênteses ou `Long`. Se `result` estiver vaz
 3. Em **Database Access / Database Users**, crie um usuário de banco com senha própria e permissão de leitura e escrita no banco `telegram_bot`. Esse usuário não é o login da sua conta Atlas.
 4. Em **Network Access / IP Access List**, permita o IP do computador que executará o teste local.
 5. Abra o cluster e clique em **Connect → Drivers**. Escolha **Python** e copie a connection string.
-6. Na URL copiada, substitua <username> pelo usuário criado em Database Access e <password> pela senha definida para ele. Depois, salve a URL completa na variável MONGO_URI do arquivo .env. Se a senha tiver caracteres especiais, codifique-os para URL.
+6. Na URL copiada, substitua `<username>` pelo usuário criado em Database Access e `<password>` pela senha definida para ele. Depois, salve a URL completa na variável `MONGO_URI` do arquivo `.env`. Se a senha tiver caracteres especiais, codifique-os para URL.
 7. Salve a URI completa em `MONGO_URI`.
 
 A aplicação cria a configuração na coleção `telegram_bot.config` ao iniciar; não é necessário inserir um documento manualmente.
@@ -127,35 +162,7 @@ Para hospedar no Render, a lista de acesso do Atlas também precisa permitir os 
 
 Os nomes dos menus podem variar. Consulte o [guia oficial de conexão do Atlas](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/) se a interface for diferente.
 
-### 2. Baixe o projeto e instale as dependências
-
-```bash
-git clone https://github.com/victor-rk/telegram-monitor-promocoes.git
-cd telegram-monitor-promocoes
-python -m venv .venv
-```
-
-Ative o ambiente virtual no **Windows — PowerShell**:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-Ou no **Linux/macOS**:
-
-```bash
-source .venv/bin/activate
-```
-
-Depois instale as dependências:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-Nos sistemas em que o executável se chama `python3`, substitua `python` por `python3`.
-
-### 3. Gere a sessão da conta leitora
+### 4. Gere a sessão da conta leitora
 
 Execute localmente:
 
@@ -167,7 +174,7 @@ Informe o API ID, o API Hash e os dados solicitados pelo Telegram para autentica
 
 **A sessão permite acesso à conta autenticada.** Não a envie a terceiros, não a mostre em gravações e não a publique no repositório.
 
-### 4. Configure o ambiente
+### 5. Configure o ambiente
 
 Crie uma cópia de `.env.example` chamada `.env` na raiz do projeto e preencha:
 
@@ -186,7 +193,7 @@ Para uso individual, use sua própria conta em `OWNER_ID` e seu chat privado com
 
 O banco utilizado pelo código é `telegram_bot`, com a coleção `config`. Alterar apenas o nome do banco no caminho da URI não muda essa seleção definida no código.
 
-### 5. Inicie a aplicação
+### 6. Inicie a aplicação
 
 ```bash
 python bot.py
@@ -339,7 +346,6 @@ Os valores são os mesmos do seu teste local. Não cole o nome da variável junt
 
 O código utiliza a variável `PORT` fornecida pelo ambiente e usa `10000` como alternativa. Não é necessário duplicar uma variável que a plataforma já fornece.
 
-
 ### 4. Implantar e conferir
 
 1. Pare a instância local com **Ctrl + C**, para não manter duas cópias em execução.
@@ -348,7 +354,6 @@ O código utiliza a variável `PORT` fornecida pelo ambiente e usa `10000` como 
 4. Abra a URL pública do serviço acrescentando `/health`. A resposta esperada é `Servidor ativo`.
 5. No Telegram, envie `/status` pela conta autorizada e confira as conexões e o estado do monitor.
 6. Cadastre um filtro de demonstração e publique uma oferta fictícia em um grupo ao qual a conta leitora tenha acesso.
-
 
 Uma resposta HTTP não comprova a saúde do Telegram ou do MongoDB; confira também `/status`.
 
@@ -435,7 +440,7 @@ LICENSE            Licença do projeto
 - MongoDB
 - Google Antigravity
 - GPT-6.1 Sol
-  
+
 ## Autor
 
 Victor Riki (https://github.com/victor-rk/)
