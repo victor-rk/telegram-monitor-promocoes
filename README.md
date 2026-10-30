@@ -116,7 +116,7 @@ Use somente o número, sem aspas, parênteses ou `Long`. Se `result` estiver vaz
 3. Em **Database Access / Database Users**, crie um usuário de banco com senha própria e permissão de leitura e escrita no banco `telegram_bot`. Esse usuário não é o login da sua conta Atlas.
 4. Em **Network Access / IP Access List**, permita o IP do computador que executará o teste local.
 5. Abra o cluster e clique em **Connect → Drivers**. Escolha **Python** e copie a connection string.
-6. Substitua os marcadores de usuário e senha pelos dados do usuário de banco. Se houver caracteres reservados na senha, utilize sua representação codificada para URL.
+6. Na URL copiada, substitua <username> pelo usuário criado em Database Access e <password> pela senha definida para ele. Depois, salve a URL completa na variável MONGO_URI do arquivo .env. Se a senha tiver caracteres especiais, codifique-os para URL.
 7. Salve a URI completa em `MONGO_URI`.
 
 A aplicação cria a configuração na coleção `telegram_bot.config` ao iniciar; não é necessário inserir um documento manualmente.
