@@ -54,22 +54,24 @@ O alerta também inclui o texto original e o nome da origem. Os termos são comp
 
 ---
 
-## Instalação e configuração
+# Instalação e configuração
 
-### 1. Prepare os requisitos
+## 1. Prepare os requisitos
 
 Você precisará de:
 
-- Python com suporte às dependências de `requirements.txt` e Git instalados.
+- Python com suporte às dependências de `requirements.txt`.
+- Git instalado.
+- Uma conta no GitHub.
 - Uma conta Telegram que participe dos canais ou grupos desejados.
 - Uma aplicação Telegram, criada em [my.telegram.org](https://my.telegram.org), para obter `API_ID` e `API_HASH`.
 - Um bot criado pelo [@BotFather](https://t.me/BotFather), para obter `BOT_TOKEN`.
 - Uma instância MongoDB acessível pela aplicação.
 - O ID numérico da sua conta e o ID do chat que receberá os alertas.
 
-### 2. Baixe o projeto e instale as dependências
+## 2. Baixe o projeto e instale as dependências
 
-Clone o repositório e entre na pasta do projeto:
+Primeiro, clone o repositório original e entre na pasta do projeto:
 
 ```bash
 git clone https://github.com/victor-rk/telegram-monitor-promocoes.git
@@ -102,22 +104,140 @@ python -m pip install -r requirements.txt
 
 Nos sistemas em que o executável se chama `python3`, substitua `python` por `python3`.
 
-### 3. Obtenha as credenciais
+## 3. Crie seu próprio repositório no GitHub
 
-#### Criar o bot e obter o BOT_TOKEN
+Antes de conectar o projeto ao Render, você precisa ter uma cópia do código na sua própria conta do GitHub.
+
+### 3.1. Criar um novo repositório
+
+1. Acesse [github.com](https://github.com/) e entre na sua conta.
+2. Clique no botão **+**, no canto superior direito.
+3. Selecione **New repository**.
+4. Em **Repository name**, escolha um nome para o seu projeto, por exemplo, `telegram-monitor-promocoes`.
+5. Em **Description**, você pode utilizar uma descrição como: `Monitoramento de promoções em canais do Telegram com filtros personalizados e alertas automáticos.`
+6. Escolha a visibilidade do repositório:
+   - **Public:** qualquer pessoa poderá visualizar o código.
+   - **Private:** somente pessoas autorizadas poderão acessá-lo.
+7. **Não marque** as opções para adicionar README, `.gitignore` ou licença. O projeto já possui esses arquivos.
+8. Clique em **Create repository**.
+
+O GitHub exibirá uma página com instruções para conectar um repositório local. Mantenha essa página aberta.
+
+### 3.2. Conectar seu projeto ao novo repositório
+
+Volte ao terminal, dentro da pasta `telegram-monitor-promocoes`.
+
+Primeiro, confira o endereço remoto atual:
+
+```bash
+git remote -v
+```
+
+O resultado deverá mostrar o repositório original:
+
+```text
+origin  https://github.com/victor-rk/telegram-monitor-promocoes.git
+```
+
+Agora, altere o endereço remoto para o seu próprio repositório:
+
+```bash
+git remote set-url origin https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+```
+
+Substitua:
+
+- `SEU_USUARIO` pelo seu nome de usuário do GitHub.
+- `SEU_REPOSITORIO` pelo nome que você escolheu na criação do repositório.
+
+Por exemplo:
+
+```bash
+git remote set-url origin https://github.com/seu-usuario/telegram-monitor-promocoes.git
+```
+
+Confira se a alteração foi realizada:
+
+```bash
+git remote -v
+```
+
+O endereço exibido agora deverá ser o do seu repositório.
+
+### 3.3. Enviar o projeto para o GitHub
+
+Antes de enviar, confira se o Git está reconhecendo os arquivos:
+
+```bash
+git status
+```
+
+Caso existam alterações pendentes que você deseja incluir, adicione-as:
+
+```bash
+git add .
+```
+
+Crie um commit:
+
+```bash
+git commit -m "Configura projeto para hospedagem"
+```
+
+Por fim, envie o código para o GitHub:
+
+```bash
+git branch -M main
+git push -u origin main
+```
+
+O comando `git push` envia os commits locais para o repositório remoto. A opção `-u` configura o acompanhamento da branch `main`, facilitando os próximos envios.
+
+**Importante:** se o comando `git commit` informar que não há alterações para registrar, você pode prosseguir diretamente para o `git push`.
+
+### 3.4. Conferir o repositório
+
+1. Atualize a página do seu novo repositório no GitHub.
+2. Confira se os arquivos e pastas do projeto aparecem.
+3. Abra o `README.md` e verifique se a documentação foi enviada corretamente.
+4. Confira se o arquivo `.env` não foi publicado.
+
+O arquivo `.env` contém credenciais e não deve ser enviado ao GitHub. Utilize o `.env.example` como modelo e mantenha as informações reais apenas no ambiente local ou nas variáveis de ambiente da hospedagem.
+
+A partir daqui, o Render deverá utilizar esse repositório próprio.
+
+### 3.5. Atualizar o repositório futuramente
+
+Sempre que fizer alterações no projeto, utilize:
+
+```bash
+git add .
+git commit -m "Descrição das alterações"
+git push
+```
+
+Substitua `Descrição das alterações` por uma mensagem curta que explique o que foi modificado.
+
+O Render poderá ser configurado para realizar uma nova implantação automaticamente sempre que houver um novo envio para a branch conectada.
+
+---
+
+## 4. Obtenha as credenciais
+
+### Criar o bot e obter o BOT_TOKEN
 
 1. Abra o Telegram e acesse o [BotFather oficial](https://t.me/BotFather).
 2. Envie `/newbot`.
 3. Escolha o nome exibido, por exemplo, **Meu Monitor de Ofertas**.
 4. Escolha um username disponível terminado em `bot`, por exemplo, `meu_monitor_ofertas_bot`.
 5. O BotFather retornará um token. Guarde-o como `BOT_TOKEN`.
-6. Abra o link do bot (por exemplo, `t.me/meu_monitor_ofertas_bot`) criado e pressione **Iniciar / Start**.
+6. Abra o link do bot criado e pressione **Iniciar / Start**.
 
 Você não precisa adicionar esse bot aos canais de ofertas: quem lê as mensagens é a conta autenticada no Telethon.
 
 <!-- PRINT: conversa com o BotFather mostrando /newbot e a escolha do nome. Oculte integralmente o token antes de enviar a imagem ao GitHub. -->
 
-#### Obter API_ID e API_HASH
+### Obter API_ID e API_HASH
 
 1. Acesse [my.telegram.org](https://my.telegram.org).
 2. Entre com o número da conta que participará dos canais e confirme o código recebido pelo Telegram.
@@ -127,26 +247,26 @@ Você não precisa adicionar esse bot aos canais de ofertas: quem lê as mensage
 
 Essas credenciais pertencem à aplicação Telegram; são diferentes do token entregue pelo BotFather.
 
-#### Descobrir OWNER_ID e CHAT_ID
+### Descobrir OWNER_ID e CHAT_ID
 
 Para receber alertas na sua conversa privada com o bot:
 
 1. Usando a mesma conta que será autenticada no Telethon, abra o bot criado e envie uma mensagem, como `Olá`.
-2. Antes de iniciar o projeto, consulte o método oficial `getUpdates` no navegador, substituindo o marcador pelo seu token:
+2. Consulte o método oficial `getUpdates` no navegador, substituindo o marcador pelo seu token:
 
 ```text
 https://api.telegram.org/botSEU_BOT_TOKEN/getUpdates
 ```
 
 3. Na resposta, localize a mensagem que você acabou de enviar.
-4. Copie `"message":{.."from":{"id":...}}` para `OWNER_ID`.
-5. Copie `"message":{.."chat":{"id":...}}` para `CHAT_ID`. Em uma conversa privada comum com sua própria conta, esses dois valores coincidem.
+4. Copie o valor de `"message":{.."from":{"id":...}}` para `OWNER_ID`.
+5. Copie o valor de `"message":{.."chat":{"id":...}}` para `CHAT_ID`. Em uma conversa privada comum com sua própria conta, esses dois valores coincidem.
 
 Use somente o número, sem aspas, parênteses ou `Long`. Se `result` estiver vazio, envie uma nova mensagem ao bot e atualize a consulta. Um webhook previamente configurado nesse mesmo bot pode impedir a consulta; prefira um bot novo para este projeto.
 
 **O token aparece no endereço da consulta. Não compartilhe esse endereço nem tire prints da barra do navegador.** Feche a página após copiar os IDs.
 
-#### Criar o banco no MongoDB Atlas
+### Criar o banco no MongoDB Atlas
 
 1. Acesse [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register), crie sua conta e um projeto.
 2. Crie um cluster/deployment escolhendo região e modalidade adequadas ao seu uso. Confira os custos antes de confirmar.
@@ -163,7 +283,7 @@ Não libere acesso de qualquer IP apenas para contornar uma falha de conexão.
 
 Os nomes dos menus podem variar. Consulte o [guia oficial de conexão do Atlas](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/) se a interface for diferente.
 
-### 4. Gere a sessão da conta leitora
+## 5. Gere a sessão da conta leitora
 
 A sessão da conta Telegram deve ser gerada localmente, antes da implantação no Render.
 
@@ -177,7 +297,7 @@ Informe o API ID, o API Hash e os dados solicitados pelo Telegram para autentica
 
 **A sessão permite acesso à conta autenticada.** Não a envie a terceiros, não a mostre em gravações e não a publique no repositório.
 
-### 5. Configure as variáveis de ambiente
+## 6. Configure as variáveis de ambiente
 
 Crie uma cópia de `.env.example` chamada `.env` na raiz do projeto e preencha as variáveis:
 
@@ -200,20 +320,22 @@ O banco utilizado pelo código é `telegram_bot`, com a coleção `config`. Alte
 
 ---
 
-## Hospedagem no Render
+# Hospedagem no Render
 
-Com as credenciais preparadas e a sessão gerada, você já pode implantar o projeto. O `bot.py` será iniciado pelo próprio Render; não é necessário executá-lo localmente.
+Com o repositório próprio publicado no GitHub, as credenciais preparadas e a sessão gerada, você já pode implantar o projeto.
 
-### 1. Criar um Web Service
+O `bot.py` será iniciado pelo próprio Render; não é necessário executá-lo localmente.
+
+## 1. Criar um Web Service
 
 1. Acesse [dashboard.render.com](https://dashboard.render.com/) e entre na sua conta.
 2. Clique em **New + → Web Service**. Se já estiver na tela **Create a new Service**, escolha diretamente o cartão **Web Services**.
 3. Conecte sua conta GitHub quando solicitado e autorize o acesso ao repositório desejado.
-4. Selecione sua cópia de `telegram-monitor-promocoes`.
+4. Selecione o repositório que você criou anteriormente, por exemplo, `telegram-monitor-promocoes`.
 
-A imagem de referência desta etapa deve mostrar o cartão **Web Services**. O botão **New +** abre a seleção de serviços; ele não é a opção final a escolher.
+**Atenção:** selecione seu repositório, não o repositório original `victor-rk/telegram-monitor-promocoes`.
 
-### 2. Preencher a configuração
+## 2. Preencher a configuração
 
 | Campo | Valor |
 |---|---|
@@ -227,7 +349,7 @@ A imagem de referência desta etapa deve mostrar o cartão **Web Services**. O b
 | Instance Type | Escolha após conferir preço e limitações do plano. |
 | Health Check Path | `/health`, nas opções avançadas ou nas configurações do serviço. |
 
-### 3. Adicionar as variáveis de ambiente
+## 3. Adicionar as variáveis de ambiente
 
 No formulário de criação, procure **Environment Variables**. Se o serviço já existir, abra **Environment → Edit → Add Environment Variable**.
 
@@ -247,7 +369,7 @@ Os valores são os mesmos que você preparou na configuração local. Não cole 
 
 O código utiliza a variável `PORT` fornecida pelo ambiente e usa `10000` como alternativa. Não é necessário duplicar uma variável que a plataforma já fornece.
 
-### 4. Implantar e conferir
+## 4. Implantar e conferir
 
 1. Confira se todas as variáveis de ambiente foram cadastradas corretamente.
 2. Conclua a criação em **Deploy Web Service / Create Web Service**. Ao alterar um serviço existente, escolha a opção de salvar com implantação.
@@ -260,11 +382,13 @@ Uma resposta HTTP não comprova a saúde do Telegram ou do MongoDB; confira tamb
 
 **Não é necessário manter o terminal local executando `bot.py`.** Depois da implantação, o Render será responsável por iniciar e manter o processo de acordo com as condições do serviço contratado.
 
-### Configurar o UptimeRobot para monitorar o Render
+---
+
+## Configurar o UptimeRobot para monitorar o Render
 
 Este tutorial considera o **UptimeRobot** ([uptimerobot.com](https://uptimerobot.com/)). O monitor HTTP verifica a URL pública do Render e pode manter um Web Service gratuito ativo ao enviar solicitações periódicas.
 
-#### 1. Copiar e testar a URL de saúde no Render
+### 1. Copiar e testar a URL de saúde no Render
 
 1. Acesse [dashboard.render.com](https://dashboard.render.com/) e entre na sua conta.
 2. Na página **Projects**, abra o projeto que contém o bot.
@@ -275,7 +399,7 @@ Este tutorial considera o **UptimeRobot** ([uptimerobot.com](https://uptimerobot
 
 Se o serviço gratuito estava dormindo, a primeira solicitação pode demorar enquanto o Render o inicia. Aguarde e atualize a página uma vez.
 
-#### 2. Criar um monitor HTTP no UptimeRobot
+### 2. Criar um monitor HTTP no UptimeRobot
 
 1. Acesse [uptimerobot.com](https://uptimerobot.com/) e entre ou crie uma conta.
 2. No painel principal (**Dashboard**), clique em **+ Add New Monitor**.
@@ -286,7 +410,7 @@ Se o serviço gratuito estava dormindo, a primeira solicitação pode demorar en
 7. Revise o intervalo de verificação e as demais opções. No plano gratuito atual, as verificações são feitas a cada 5 minutos; a disponibilidade de opções pode variar conforme o plano.
 8. Clique em **Create monitor**.
 
-#### 3. Confirmar que o monitor está funcionando
+### 3. Confirmar que o monitor está funcionando
 
 1. Volte ao **Dashboard** do UptimeRobot.
 2. Localize o monitor pelo nome que você escolheu.
@@ -295,7 +419,7 @@ Se o serviço gratuito estava dormindo, a primeira solicitação pode demorar en
 
 O endpoint `/health` verifica se o processo HTTP do bot está respondendo. Para confirmar as conexões com Telegram e MongoDB, consulte também o comando `/status` no Telegram.
 
-#### O que isso faz no plano gratuito do Render
+### O que isso faz no plano gratuito do Render
 
 O Render suspende um Web Service gratuito após 15 minutos sem tráfego de entrada. O UptimeRobot, no plano gratuito, verifica o endereço a cada 5 minutos; essas requisições HTTP ao endpoint `/health` podem impedir que o serviço fique inativo. Isso pode ajudar o bot a permanecer acordado, mas não garante disponibilidade: falhas, pausas, limites de uso e mudanças nos planos dos provedores ainda podem interromper o serviço.
 
@@ -307,9 +431,9 @@ Consulte também os guias oficiais: [criar um monitor no UptimeRobot](https://he
 
 ---
 
-## Utilização
+# Utilização
 
-### Cadastrar e consultar filtros
+## Cadastrar e consultar filtros
 
 Sem meta:
 
@@ -343,7 +467,7 @@ Use valores como `5000`, `5.000` ou `3.000,50`. Separe as regras por vírgula e 
 
 **A exclusão confirmada remove todos os filtros dessa configuração.** Guarde uma cópia de `/export` antes de testar esse fluxo com dados pessoais.
 
-### Entender as classificações
+## Entender as classificações
 
 | Resultado | Significado |
 |---|---|
@@ -369,7 +493,7 @@ Consulte com `/margem` ou altere as três faixas:
 
 Cada percentual deve ser um inteiro de 0 a 100. Uma meta de R$ 250 com margem de 20% considera preços até R$ 300 como próximos da meta.
 
-### Escolher quais alertas receber
+## Escolher quais alertas receber
 
 | Comando | Comportamento para regras com meta |
 |---|---|
@@ -381,7 +505,7 @@ Cada percentual deve ser um inteiro de 0 a 100. Uma meta de R$ 250 com margem de
 
 A opção de alertas sem preço é independente do modo. Regras sem meta continuam gerando alertas por correspondência de texto.
 
-### Selecionar origens
+## Selecionar origens
 
 | Comando | Ação |
 |---|---|
@@ -394,7 +518,7 @@ Execute `/canais` antes de usar seus números; também é possível informar dir
 
 **Uma seleção vazia significa monitorar todos**, não monitorar nenhum. Nesse estado, `/addcanal` informa que todas as origens já estão incluídas. Use `/remcanal` para excluir origens ou `/pausar` para interromper o monitoramento.
 
-### Controlar o processo pelo Telegram
+## Controlar o processo pelo Telegram
 
 | Comando | Ação |
 |---|---|
@@ -405,7 +529,7 @@ Execute `/canais` antes de usar seus números; também é possível informar dir
 
 ---
 
-## Segurança e limitações
+# Segurança e limitações
 
 - A conta leitora precisa participar dos canais e grupos monitorados.
 - O projeto acompanha novas mensagens; não oferece importação de histórico.
@@ -414,7 +538,7 @@ Execute `/canais` antes de usar seus números; também é possível informar dir
 - O filtro compara palavras, não entende semanticamente o produto. Confira sempre a oferta original.
 - O processamento envia no máximo um alerta por mensagem recebida, conforme a primeira regra aplicável.
 
-## Solução de problemas
+# Solução de problemas
 
 | Situação | O que conferir |
 |---|---|
@@ -424,8 +548,10 @@ Execute `/canais` antes de usar seus números; também é possível informar dir
 | Oferta não gera alerta | Participação na origem, seleção de canais, pausa, termos do filtro e modo de alertas. |
 | Preço não identificado | Formato do preço; teste uma mensagem fictícia com um único valor, como `POR: R$ 249,90`. |
 | Alertas duplicados | Outra instância do projeto executando com a mesma configuração. |
+| Erro ao executar `git push` | Confira o endereço remoto com `git remote -v`, a autenticação do GitHub e as permissões da conta. |
+| GitHub rejeita o envio por privacidade do e-mail | Configure o e-mail `noreply` disponibilizado pelo GitHub nas configurações do Git e atualize o e-mail do autor do commit, se necessário. |
 
-## Estrutura do repositório
+# Estrutura do repositório
 
 ```text
 bot.py             Aplicação, comandos e processamento das mensagens
@@ -435,7 +561,7 @@ requirements.txt   Dependências Python
 LICENSE            Licença do projeto
 ```
 
-## Tecnologias Usadas
+# Tecnologias Usadas
 
 - Python
 - Telethon
@@ -444,6 +570,6 @@ LICENSE            Licença do projeto
 - Google Antigravity
 - GPT-6.1 Sol
 
-## Autor
+# Autor
 
 Victor Riki (https://github.com/victor-rk/)
