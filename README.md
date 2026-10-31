@@ -235,7 +235,6 @@ O Render poderá ser configurado para realizar uma nova implantação automatica
 
 Você não precisa adicionar esse bot aos canais de ofertas: quem lê as mensagens é a conta autenticada no Telethon.
 
-<!-- PRINT: conversa com o BotFather mostrando /newbot e a escolha do nome. Oculte integralmente o token antes de enviar a imagem ao GitHub. -->
 
 ### Obter API_ID e API_HASH
 
@@ -279,7 +278,6 @@ A aplicação cria a configuração na coleção `telegram_bot.config` ao inicia
 
 Não libere acesso de qualquer IP apenas para contornar uma falha de conexão.
 
-<!-- PRINT: tela Connect → Drivers com o campo da URI totalmente oculto. Não exiba usuário, senha ou connection string real. -->
 
 Os nomes dos menus podem variar. Consulte o [guia oficial de conexão do Atlas](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/) se a interface for diferente.
 
