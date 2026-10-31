@@ -114,12 +114,8 @@ Antes de conectar o projeto ao Render, você precisa ter uma cópia do código n
 2. Clique no botão **+**, no canto superior direito.
 3. Selecione **New repository**.
 4. Em **Repository name**, escolha um nome para o seu projeto, por exemplo, `telegram-monitor-promocoes`.
-5. Em **Description**, você pode utilizar uma descrição como: `Monitoramento de promoções em canais do Telegram com filtros personalizados e alertas automáticos.`
-6. Escolha a visibilidade do repositório:
-   - **Public:** qualquer pessoa poderá visualizar o código.
-   - **Private:** somente pessoas autorizadas poderão acessá-lo.
-7. **Não marque** as opções para adicionar README, `.gitignore` ou licença. O projeto já possui esses arquivos.
-8. Clique em **Create repository**.
+5. Escolha a visibilidade **Private:**  do repositório.
+6. Clique em **Create repository**.
 
 O GitHub exibirá uma página com instruções para conectar um repositório local. Mantenha essa página aberta.
 
