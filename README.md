@@ -68,6 +68,7 @@ Você precisará de:
 - Um bot criado pelo [@BotFather](https://t.me/BotFather), para obter `BOT_TOKEN`.
 - Uma instância MongoDB acessível pela aplicação.
 - O ID numérico da sua conta e o ID do chat que receberá os alertas.
+- Contas no [Render](https://render.com/) e no [UptimeRobot](https://uptimerobot.com/).
 
 ## 2. Baixe o projeto e instale as dependências
 
@@ -114,7 +115,7 @@ Antes de conectar o projeto ao Render, você precisa ter uma cópia do código n
 2. Clique no botão **+**, no canto superior direito.
 3. Selecione **New repository**.
 4. Em **Repository name**, escolha um nome para o seu projeto, por exemplo, `telegram-monitor-promocoes`.
-5. Escolha a visibilidade **Private:**  do repositório.
+5. Escolha a visibilidade **Private** ou **Public**, conforme sua preferência.
 6. Clique em **Create repository**.
 
 O GitHub exibirá uma página com instruções para conectar um repositório local. Mantenha essa página aberta.
@@ -141,16 +142,7 @@ Agora, altere o endereço remoto para o seu próprio repositório:
 git remote set-url origin https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
 ```
 
-Substitua:
-
-- `SEU_USUARIO` pelo seu nome de usuário do GitHub.
-- `SEU_REPOSITORIO` pelo nome que você escolheu na criação do repositório.
-
-Por exemplo:
-
-```bash
-git remote set-url origin https://github.com/seu-usuario/telegram-monitor-promocoes.git
-```
+Substitua `SEU_USUARIO` e `SEU_REPOSITORIO` pelos dados da sua conta e do repositório criado.
 
 Confira se a alteração foi realizada:
 
@@ -197,6 +189,7 @@ O comando `git push` envia os commits locais para o repositório remoto. A opç�
 2. Confira se os arquivos e pastas do projeto aparecem.
 3. Abra o `README.md` e verifique se a documentação foi enviada corretamente.
 4. Confira se o arquivo `.env` não foi publicado.
+5. Verifique se nenhum arquivo contendo credenciais ou sessões foi enviado.
 
 O arquivo `.env` contém credenciais e não deve ser enviado ao GitHub. Utilize o `.env.example` como modelo e mantenha as informações reais apenas no ambiente local ou nas variáveis de ambiente da hospedagem.
 
@@ -231,7 +224,6 @@ O Render poderá ser configurado para realizar uma nova implantação automatica
 
 Você não precisa adicionar esse bot aos canais de ofertas: quem lê as mensagens é a conta autenticada no Telethon.
 
-
 ### Obter API_ID e API_HASH
 
 1. Acesse [my.telegram.org](https://my.telegram.org).
@@ -254,8 +246,8 @@ https://api.telegram.org/botSEU_BOT_TOKEN/getUpdates
 ```
 
 3. Na resposta, localize a mensagem que você acabou de enviar.
-4. Copie o valor de `"message":{.."from":{"id":...}}` para `OWNER_ID`.
-5. Copie o valor de `"message":{.."chat":{"id":...}}` para `CHAT_ID`. Em uma conversa privada comum com sua própria conta, esses dois valores coincidem.
+4. Copie o valor de `"message":{"from":{"id":...}}` para `OWNER_ID`.
+5. Copie o valor de `"message":{"chat":{"id":...}}` para `CHAT_ID`. Em uma conversa privada comum com sua própria conta, esses dois valores coincidem.
 
 Use somente o número, sem aspas, parênteses ou `Long`. Se `result` estiver vazio, envie uma nova mensagem ao bot e atualize a consulta. Um webhook previamente configurado nesse mesmo bot pode impedir a consulta; prefira um bot novo para este projeto.
 
@@ -266,14 +258,14 @@ Use somente o número, sem aspas, parênteses ou `Long`. Se `result` estiver vaz
 1. Acesse [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register), crie sua conta e um projeto.
 2. Crie um cluster/deployment escolhendo região e modalidade adequadas ao seu uso. Confira os custos antes de confirmar.
 3. Em **Database Access / Database Users**, crie um usuário de banco com senha própria e permissão de leitura e escrita no banco `telegram_bot`. Esse usuário não é o login da sua conta Atlas.
-4. Em **Network Access / IP Access List**, configure o acesso de rede para permitir que o serviço no Render alcance o banco. Consulte os endereços de saída do serviço no Render e adicione os intervalos correspondentes.
-5. Abra o cluster e clique em **Connect → Drivers**. Escolha **Python** e copie a connection string.
-6. Na URL copiada, substitua `<username>` pelo usuário criado em Database Access e `<password>` pela senha definida para ele. Guarde a URL completa para utilizar como `MONGO_URI`. Se a senha tiver caracteres especiais, codifique-os para URL.
+4. Em **Network Access / IP Access List**, configure o acesso de rede para permitir que o serviço no Render alcance o banco.
+5. Consulte os endereços de saída do seu serviço no Render e adicione os intervalos correspondentes à lista de acesso do Atlas. Se também for executar a aplicação localmente, autorize o IP público da sua conexão local.
+6. Abra o cluster e clique em **Connect → Drivers**. Escolha **Python** e copie a connection string.
+7. Na URL copiada, substitua `<username>` pelo usuário criado em Database Access e `<password>` pela senha definida para ele. Guarde a URL completa para utilizar como `MONGO_URI`. Se a senha tiver caracteres especiais, codifique-os para URL.
 
 A aplicação cria a configuração na coleção `telegram_bot.config` ao iniciar; não é necessário inserir um documento manualmente.
 
-Não libere acesso de qualquer IP apenas para contornar uma falha de conexão.
-
+**Importante:** não libere acesso de qualquer IP apenas para contornar uma falha de conexão. Autorize somente os endereços necessários.
 
 Os nomes dos menus podem variar. Consulte o [guia oficial de conexão do Atlas](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/) se a interface for diferente.
 
@@ -289,7 +281,23 @@ python gerar_sessao.py
 
 Informe o API ID, o API Hash e os dados solicitados pelo Telegram para autenticar sua própria conta. Copie a sessão gerada para `SESSION_STRING`.
 
-**A sessão permite acesso à conta autenticada.** Não a envie a terceiros, não a mostre em gravações e não a publique no repositório.
+**Atenção: a sessão é uma credencial de acesso à sua conta Telegram.** Não a envie a terceiros, não a mostre em gravações e não a publique no repositório.
+
+### Cuidados com a sessão
+
+A mesma `SESSION_STRING` não deve ser utilizada simultaneamente por diferentes processos ou instâncias do Telethon.
+
+Para esta implantação:
+
+- Gere a sessão localmente.
+- Utilize essa sessão exclusivamente no serviço do Render.
+- Não mantenha `python bot.py` em execução no computador enquanto o Render estiver utilizando a mesma sessão.
+- Não configure a mesma sessão em outro serviço ou instância do bot.
+- Mantenha apenas uma execução ativa do monitor.
+
+Se precisar substituir a sessão, interrompa primeiro a execução no Render e todas as execuções locais. Gere uma nova sessão e atualize a variável no Render. Depois salve a alteração e aplique a implantação antes de retomar o serviço.
+
+O uso simultâneo da mesma sessão a partir de diferentes endereços IP pode invalidar a chave de autenticação e provocar o erro `AuthKeyDuplicatedError`.
 
 ## 6. Configure as variáveis de ambiente
 
@@ -323,9 +331,9 @@ O `bot.py` será iniciado pelo próprio Render; não é necessário executá-lo 
 ## 1. Criar um Web Service
 
 1. Acesse [dashboard.render.com](https://dashboard.render.com/) e entre na sua conta.
-2. Clique em **New + → Web Service**. Se já estiver na tela **Create a new Service**, escolha diretamente o cartão **Web Services**.
+2. Clique em **New + → Web Service**.
 3. Conecte sua conta GitHub quando solicitado e autorize o acesso ao repositório desejado.
-4. Selecione o repositório que você criou anteriormente, por exemplo, `telegram-monitor-promocoes`.
+4. Selecione o repositório que você criou anteriormente.
 
 **Atenção:** selecione seu repositório, não o repositório original `victor-rk/telegram-monitor-promocoes`.
 
@@ -341,7 +349,7 @@ O `bot.py` será iniciado pelo próprio Render; não é necessário executá-lo 
 | Build Command | `pip install -r requirements.txt` |
 | Start Command | `python bot.py` |
 | Instance Type | Escolha após conferir preço e limitações do plano. |
-| Health Check Path | `/health`, nas opções avançadas ou nas configurações do serviço. |
+| Health Check Path | `/health` |
 
 ## 3. Adicionar as variáveis de ambiente
 
@@ -366,62 +374,130 @@ O código utiliza a variável `PORT` fornecida pelo ambiente e usa `10000` como 
 ## 4. Implantar e conferir
 
 1. Confira se todas as variáveis de ambiente foram cadastradas corretamente.
-2. Conclua a criação em **Deploy Web Service / Create Web Service**. Ao alterar um serviço existente, escolha a opção de salvar com implantação.
-3. Acompanhe **Logs**: a instalação precisa terminar e a aplicação deve registrar `Monitor conectado`.
-4. Abra a URL pública do serviço acrescentando `/health`. A resposta esperada é `Servidor ativo`.
-5. No Telegram, envie `/status` pela conta autorizada e confira as conexões e o estado do monitor.
-6. Cadastre um filtro de demonstração e publique uma oferta fictícia em um grupo ao qual a conta leitora tenha acesso.
+2. Conclua a criação em **Deploy Web Service / Create Web Service**.
+3. Ao alterar variáveis de um serviço existente, salve a alteração e aplique a implantação para que o novo processo utilize os valores atualizados.
+4. Acompanhe **Logs**: a instalação precisa terminar e a aplicação deve registrar `Monitor conectado`.
+5. Abra a URL pública do serviço acrescentando `/health`. A resposta esperada é `Servidor ativo`.
+6. No Telegram, envie `/status` pela conta autorizada e confira as conexões e o estado do monitor.
 
 Uma resposta HTTP não comprova a saúde do Telegram ou do MongoDB; confira também `/status`.
 
 **Não é necessário manter o terminal local executando `bot.py`.** Depois da implantação, o Render será responsável por iniciar e manter o processo de acordo com as condições do serviço contratado.
 
+### Atenção à quantidade de instâncias
+
+Este projeto utiliza uma sessão Telethon destinada a uma única execução. Não configure várias instâncias simultâneas do bot utilizando a mesma `SESSION_STRING`.
+
+Também não execute o mesmo bot localmente enquanto ele estiver ativo no Render.
+
 ---
 
-## Configurar o UptimeRobot para monitorar o Render
+# Configurar o UptimeRobot para monitorar o Render
 
-Este tutorial considera o **UptimeRobot** ([uptimerobot.com](https://uptimerobot.com/)). O monitor HTTP verifica a URL pública do Render e pode manter um Web Service gratuito ativo ao enviar solicitações periódicas.
+Este tutorial considera o **UptimeRobot** ([uptimerobot.com](https://uptimerobot.com/)). O monitor HTTP verifica a URL pública do Render e permite acompanhar a disponibilidade do endpoint de saúde.
 
-### 1. Copiar e testar a URL de saúde no Render
+## 1. Copiar e testar a URL de saúde no Render
 
 1. Acesse [dashboard.render.com](https://dashboard.render.com/) e entre na sua conta.
-2. Na página **Projects**, abra o projeto que contém o bot.
-3. Em **Production**, clique no serviço Web Service do bot.
-4. Na página do serviço, copie a URL pública exibida no cabeçalho, por exemplo, `https://meu-monitor.onrender.com`.
-5. Acrescente `/health` ao final. A URL completa deve ficar parecida com `https://meu-monitor.onrender.com/health`.
-6. Cole essa URL em uma nova aba do navegador. A resposta esperada é `Servidor ativo`.
+2. Abra o projeto que contém o bot.
+3. Abra o serviço Web Service do bot.
+4. Copie a URL pública exibida no cabeçalho, por exemplo, `https://meu-monitor.onrender.com`.
+5. Acrescente `/health` ao final. A URL completa deverá ficar parecida com `https://meu-monitor.onrender.com/health`.
+6. Cole essa URL em uma nova aba do navegador.
 
-Se o serviço gratuito estava dormindo, a primeira solicitação pode demorar enquanto o Render o inicia. Aguarde e atualize a página uma vez.
+A resposta esperada é:
 
-### 2. Criar um monitor HTTP no UptimeRobot
+```text
+Servidor ativo
+```
+
+Se o serviço gratuito estava suspenso por inatividade, a primeira solicitação pode demorar enquanto o Render o inicia. Aguarde e atualize a página uma vez.
+
+## 2. Conferir o endpoint HTTP
+
+O endpoint `/health` precisa responder corretamente tanto a requisições `GET` quanto `HEAD`.
+
+- `GET` retorna o texto `Servidor ativo`.
+- `HEAD` retorna os mesmos cabeçalhos HTTP, sem o corpo da resposta.
+
+Essa compatibilidade é importante porque ferramentas de monitoramento podem utilizar `HEAD` para verificar a disponibilidade do endereço.
+
+Durante a configuração deste projeto, o UptimeRobot identificou um erro **HTTP 501 Not Implemented** na região da América do Norte. O problema foi resolvido após a implementação do suporte a `HEAD` no servidor HTTP.
+
+Se estiver implementando essa funcionalidade em outro ambiente, o handler deverá tratar os dois métodos:
+
+```python
+class HealthHandler(BaseHTTPRequestHandler):
+
+    def _send_health(self, send_body=True):
+        if self.path not in ("/", "/health"):
+            self.send_error(404)
+            return
+
+        body = b"Servidor ativo\n"
+
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+
+        if send_body:
+            self.wfile.write(body)
+
+    def do_GET(self):
+        self._send_health(send_body=True)
+
+    def do_HEAD(self):
+        self._send_health(send_body=False)
+
+    def log_message(self, format, *args):
+        pass
+```
+
+Esse trecho representa a implementação utilizada no projeto. Não é necessário adicioná-lo novamente se o `bot.py` já contiver essa versão.
+
+## 3. Criar um monitor HTTP no UptimeRobot
 
 1. Acesse [uptimerobot.com](https://uptimerobot.com/) e entre ou crie uma conta.
 2. No painel principal (**Dashboard**), clique em **+ Add New Monitor**.
 3. Em **Monitor Type**, selecione **HTTP(s)**.
 4. No campo **URL**, cole o endereço completo terminado em `/health`.
 5. Em **Friendly Name**, informe um nome fácil de reconhecer, por exemplo, `Telegram Promo Bot — Render`.
-6. Em **Alert Contacts**, selecione seu e-mail ou outro contato de notificação. Confira se o contato recebe alertas de indisponibilidade (**Down**) e de recuperação (**Up**).
-7. Revise o intervalo de verificação e as demais opções. No plano gratuito atual, as verificações são feitas a cada 5 minutos; a disponibilidade de opções pode variar conforme o plano.
+6. Em **Alert Contacts**, selecione seu e-mail ou outro contato de notificação.
+7. Revise o intervalo de verificação e as demais opções disponíveis no seu plano.
 8. Clique em **Create monitor**.
 
-### 3. Confirmar que o monitor está funcionando
+## 4. Confirmar que o monitor está funcionando
 
 1. Volte ao **Dashboard** do UptimeRobot.
-2. Localize o monitor pelo nome que você escolheu.
+2. Localize o monitor pelo nome escolhido.
 3. Confirme que o status aparece como **Up**.
-4. Se aparecer **Down**, abra o monitor para ver o incidente e teste novamente a URL `/health` no navegador. Confira também **Render → seu serviço → Logs**.
+4. Se aparecer **Down**, abra o monitor e confira o código HTTP do incidente.
+5. Teste novamente a URL `/health` no navegador.
+6. Confira também **Render → seu serviço → Logs**.
 
-O endpoint `/health` verifica se o processo HTTP do bot está respondendo. Para confirmar as conexões com Telegram e MongoDB, consulte também o comando `/status` no Telegram.
+Os principais estados são:
 
-### O que isso faz no plano gratuito do Render
+| Estado | Significado |
+|---|---|
+| Up | O monitor conseguiu verificar o endereço. |
+| Down | O monitor identificou uma falha de disponibilidade. |
+| Resolved | Um incidente anterior foi encerrado após a recuperação. |
 
-O Render suspende um Web Service gratuito após 15 minutos sem tráfego de entrada. O UptimeRobot, no plano gratuito, verifica o endereço a cada 5 minutos; essas requisições HTTP ao endpoint `/health` podem impedir que o serviço fique inativo. Isso pode ajudar o bot a permanecer acordado, mas não garante disponibilidade: falhas, pausas, limites de uso e mudanças nos planos dos provedores ainda podem interromper o serviço.
+O endpoint `/health` verifica se o servidor HTTP do processo está respondendo. Ele não comprova, sozinho, que Telegram e MongoDB continuam conectados. Para isso, consulte também `/status` no Telegram e os logs do Render.
 
-Um Web Service mantido ativo consome horas gratuitas do workspace. O Render oferece atualmente 750 horas de instância gratuita por workspace em cada mês; um serviço mantido ativo continuamente pode usar quase todas essas horas, deixando menos para outros serviços gratuitos do mesmo workspace. Confira os limites atuais antes de depender dessa configuração.
+## 5. Entender o funcionamento no plano gratuito do Render
 
-Para disponibilidade contínua com garantias mais adequadas, avalie um plano pago do Render. O UptimeRobot é uma ferramenta de monitoramento HTTP; ele não corrige falhas da aplicação, não verifica diretamente se Telegram/MongoDB estão conectados e não substitui o comando `/status`.
+O Render suspende Web Services gratuitos após períodos de inatividade. Requisições periódicas ao endpoint `/health` podem ajudar a manter o serviço ativo, mas isso não representa uma garantia de disponibilidade nem substitui um plano adequado à execução contínua.
 
-Consulte também os guias oficiais: [criar um monitor no UptimeRobot](https://help.uptimerobot.com/en/articles/11358364-how-to-create-your-first-monitor-on-uptimerobot-quick-setup-guide), [intervalo de verificação do UptimeRobot](https://help.uptimerobot.com/en/articles/11360876-what-is-a-monitoring-interval-in-uptimerobot) e [limites dos serviços gratuitos do Render](https://render.com/docs/free).
+Um serviço mantido ativo consome horas gratuitas do workspace. O Render oferece uma quantidade limitada de horas gratuitas por mês; um serviço ativo continuamente pode consumir quase todo esse limite, deixando menos horas disponíveis para outros serviços gratuitos.
+
+Confira os limites e condições atuais antes de depender dessa configuração:
+
+- [Documentação oficial do Render — Free](https://render.com/docs/free)
+- [Guia oficial do UptimeRobot](https://help.uptimerobot.com/)
+
+O UptimeRobot é uma ferramenta de monitoramento HTTP. Ele não corrige falhas da aplicação, não verifica diretamente as conexões do Telegram ou MongoDB e não substitui o comando `/status`.
 
 ---
 
@@ -531,19 +607,54 @@ Execute `/canais` antes de usar seus números; também é possível informar dir
 - Mais de um preço elegível pode produzir um resultado ambíguo.
 - O filtro compara palavras, não entende semanticamente o produto. Confira sempre a oferta original.
 - O processamento envia no máximo um alerta por mensagem recebida, conforme a primeira regra aplicável.
+- A `SESSION_STRING` permite acesso à conta Telegram autenticada e deve ser tratada como uma credencial privada.
+- Não execute simultaneamente várias instâncias utilizando a mesma sessão Telethon.
 
 # Solução de problemas
 
 | Situação | O que conferir |
 |---|---|
 | Variável obrigatória ausente | Preenchimento do `.env` ou das variáveis da hospedagem. |
-| Falha de conexão com o MongoDB | URI, credenciais, acesso de rede e disponibilidade do banco. |
+| Falha de conexão com o MongoDB | URI, credenciais, acesso de rede no Atlas e disponibilidade do banco. |
+| Erro TLS ao conectar ao MongoDB | Verifique a lista de IPs autorizados no Atlas e os endereços de saída do Render. |
 | Comando sem resposta | Processo ativo, conversa privada e conta correspondente ao `OWNER_ID`. As respostas vão ao `CHAT_ID`. |
 | Oferta não gera alerta | Participação na origem, seleção de canais, pausa, termos do filtro e modo de alertas. |
 | Preço não identificado | Formato do preço; teste uma mensagem fictícia com um único valor, como `POR: R$ 249,90`. |
-| Alertas duplicados | Outra instância do projeto executando com a mesma configuração. |
+| Alertas duplicados | Verifique se existe outra instância do projeto executando com a mesma configuração. |
+| `AuthKeyDuplicatedError` | A mesma sessão Telethon pode estar sendo usada simultaneamente por processos ou endereços IP diferentes. Interrompa todas as execuções, gere uma nova sessão localmente e configure-a exclusivamente em uma única instância do Render. |
+| UptimeRobot retorna HTTP 501 | Confira se o servidor HTTP implementa os métodos `GET` e `HEAD` no endpoint `/health`. |
+| UptimeRobot retorna HTTP 502 | Confira se o processo do bot continua ativo nos logs do Render. Um erro que encerra `bot.py` também derruba o servidor HTTP. |
+| UptimeRobot marca o serviço como Down | Teste `/health` no navegador e confira o código HTTP e os logs do Render. |
 | Erro ao executar `git push` | Confira o endereço remoto com `git remote -v`, a autenticação do GitHub e as permissões da conta. |
 | GitHub rejeita o envio por privacidade do e-mail | Configure o e-mail `noreply` disponibilizado pelo GitHub nas configurações do Git e atualize o e-mail do autor do commit, se necessário. |
+
+## Recuperação da sessão Telethon
+
+Se aparecer:
+
+```text
+AuthKeyDuplicatedError
+```
+
+Siga esta sequência:
+
+1. Suspenda temporariamente o serviço do Render.
+2. Encerre todas as execuções locais de `bot.py`.
+3. Confira se não existe outro serviço ou instância utilizando a mesma sessão.
+4. Execute localmente apenas:
+
+```bash
+python gerar_sessao.py
+```
+
+5. Atualize o valor de `SESSION_STRING` no Render, sem compartilhar ou publicar o conteúdo.
+6. Salve a variável e aplique a implantação.
+7. Retome o serviço somente depois de confirmar que não existe outra execução utilizando a nova sessão.
+8. Confira os logs até aparecer `Monitor conectado` sem novos erros.
+
+Não é necessário alterar o código ou gerar sessões repetidamente sem antes verificar se existe outra execução utilizando a mesma credencial.
+
+---
 
 # Estrutura do repositório
 
@@ -553,17 +664,18 @@ gerar_sessao.py     Autenticação local e geração da sessão Telegram
 requirements.txt   Dependências Python
 .env.example       Modelo de configuração sem credenciais
 LICENSE            Licença do projeto
+README.md          Documentação do projeto
 ```
 
-# Tecnologias Usadas
+# Tecnologias Utilizadas
 
 - Python
 - Telethon
 - Telegram Bot API
 - MongoDB
-- Google Antigravity
-- GPT-6.1 Sol
+- Render
+- UptimeRobot
 
 # Autor
 
-Victor Riki (https://github.com/victor-rk/)
+Victor Riki — [github.com/victor-rk](https://github.com/victor-rk/)
